@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="game-container">
+    <h1>Color Mixing Game</h1>
+        
+        <div class="mix-display">
+            <div class="color-box" id="color1"></div>
+            <span class="plus">+</span>
+            <div class="color-box" id="color2"></div>
+            <span class="equals">=</span>
+            <span class="question">?</span>
+        </div>
+        
+        <div class="answer-buttons">
+            <button class="color-button" id="option1"></button>
+            <button class="color-button" id="option2"></button>
+            <button class="color-button" id="option3"></button>
+            <button class="color-button" id="option4"></button>
+        </div>
+        
+        <div class="game-info">
+            <p id="feedback"></p>
+            <p>Score: <span id="score">0</span></p>
+            <button id="new-game">New Mix</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
