@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Color Mixing Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="game-container">
-    <h1>Color Mixing Game</h1>
-        
-        <div class="mix-display">
-            <div class="color-box" id="color1"></div>
-            <span class="plus">+</span>
-            <div class="color-box" id="color2"></div>
-            <span class="equals">=</span>
-            <span class="question">?</span>
-        </div>
-        
-        <div class="answer-buttons">
-            <button class="color-button" id="option1"></button>
-            <button class="color-button" id="option2"></button>
-            <button class="color-button" id="option3"></button>
-            <button class="color-button" id="option4"></button>
-        </div>
-        
-        <div class="game-info">
-            <p id="feedback"></p>
-            <p>Score: <span id="score">0</span></p>
-            <button id="new-game">New Mix</button>
-        </div>
+    <!-- Start Screen -->
+    <div id="startScreen">
+        <h1>Color Mixing Game</h1>
+        <p>Test your knowledge of color mixing!</p>
+        <button id="startButton">Start Game</button>
     </div>
-    
+
+    <!-- Game Screen -->
+    <div id="gameScreen" style="display: none;">
+        <h2 id="roundTitle">Basic Round</h2>
+        <p id="scoreText">Correct in a row: 0/4</p>
+        
+        <div id="colorDisplay">
+            <div id="color1" class="color-box"></div>
+            <span id="colorOperation">+</span>
+            <div id="color2" class="color-box"></div>
+            <span>=</span>
+            <span id="questionMark">?</span>
+        </div>
+
+        <div id="answerSection">
+            <input type="text" id="userAnswer" placeholder="Enter your guess">
+            <button id="submitButton">Submit</button>
+        </div>
+
+        <p id="feedback"></p>
+    </div>
+
+    <!-- Win Screen -->
+    <div id="winScreen" style="display: none;">
+        <h1>Congratulations!</h1>
+        <p>Now you know your colors!</p>
+        <button id="playAgainButton">Play Again</button>
+    </div>
+
     <script src="script.js"></script>
+
 </body>
 </html>
