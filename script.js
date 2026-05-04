@@ -36,7 +36,16 @@ function mixTwoColors(color1, color2) {
     if ((color1 === "blue" && color2 === "yellow") || (color1 === "yellow" && color2 === "blue")) {
         return "green";
     }
-    return "unknown";
+    if ((color1 === "white" && color2 === "black") || (color1 === "black" && color2 === "white")) {
+        return "grey";
+    }
+     if ((color1 === "blue" && color2 === "black") || (color1 === "black" && color2 === "blue")) {
+        return "dark blue";
+    }
+    if ((color1 === "red" && color2 === "pink") || (color1 === "pibk" && color2 === "red")) {
+        return "white";
+    }
+    return "unknown"; 
 }
 
 // Function to start the game
@@ -67,9 +76,13 @@ function showRandomQuestion() {
     while (color2 === color1) {
         color2 = getRandomBasicColor();
     }
-     while (color1 === color2) {
-        color1 = getRandomBasicColor();
-    }
+    // Function to get a random basic color
+function getRandomBasicColor() {
+    let basicColors = ["red", "blue", "yellow", "white", "black"]; // Added white and black
+    let randomIndex = Math.floor(Math.random() * basicColors.length);
+    return basicColors[randomIndex];
+}
+
     
     // Set the current answer
     currentAnswer = mixTwoColors(color1, color2);
@@ -110,7 +123,7 @@ function checkUserAnswer() {
         showNextButton();
         
     } else {
-        feedback.innerText = "Try again! The answer is " + currentAnswer;
+        feedback.innerText = "Try again! The answer is ";
         feedback.style.color = "red";
         // Reset progress on wrong answer
         correctInARow = 0;
