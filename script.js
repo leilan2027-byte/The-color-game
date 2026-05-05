@@ -8,19 +8,50 @@ startButton.addEventListener("click", startGame);
 let submitButton = document.getElementById("submitButton");
 submitButton.addEventListener("click", checkUserAnswer);
 
+
 // Game variables
 let correctInARow = 0;
 let currentAnswer = "";
+let askedQuestions = [];
+
+// Function to create a question key for tracking
+function createQuestionKey(color1, color2) {
+    // Sort colors so "red+blue" and "blue+red" are treated as the same
+    let sortedColors = [color1, color2].sort();
+    return sortedColors[0] + "+" + sortedColors[1];
+}
+
+// Function to check if question was already asked
+function wasQuestionAsked(color1, color2) {
+    let questionKey = createQuestionKey(color1, color2);
+    
+    // Check if this question key is in our asked questions list
+    for (let i = 0; i < askedQuestions.length; i++) {
+        if (askedQuestions[i] === questionKey) {
+            return true; // Question was already asked
+        }
+    }
+    return false; // Question is new
+}
+
+// Function to add question to asked list
+function addQuestionToAsked(color1, color2) {
+    let questionKey = createQuestionKey(color1, color2);
+    askedQuestions.push(questionKey);
+    console.log("Added question: " + questionKey);
+    console.log("Total asked questions: " + askedQuestions.length);
+}
+
 
 // Function to update the progress display
 function updateProgress() {
     let scoreText = document.getElementById("scoreText");
-    scoreText.innerText = "Correct in a row: " + correctInARow + "/4";
+    scoreText.innerText = "Correct in a row: " + correctInARow + "/3";
 }
 
 // Function to get a random basic color
 function getRandomBasicColor() {
-    let basicColors = ["red", "blue", "yellow"];
+    let basicColors = ["red", "blue", "yellow", "white", "black"]; // Added white and black
     let randomIndex = Math.floor(Math.random() * basicColors.length);
     return basicColors[randomIndex];
 }
@@ -38,12 +69,6 @@ function mixTwoColors(color1, color2) {
     }
     if ((color1 === "white" && color2 === "black") || (color1 === "black" && color2 === "white")) {
         return "grey";
-    }
-     if ((color1 === "blue" && color2 === "black") || (color1 === "black" && color2 === "blue")) {
-        return "dark blue";
-    }
-    if ((color1 === "red" && color2 === "pink") || (color1 === "pibk" && color2 === "red")) {
-        return "white";
     }
     return "unknown"; 
 }
@@ -66,26 +91,44 @@ function startGame() {
     showRandomQuestion();
 }
 
+// Show the first random question
+    showRandomQuestion();
+
+
 // Function to show a random basic question
 function showRandomQuestion() {
-    // Get two different random colors
-    let color1 = getRandomBasicColor();
-    let color2 = getRandomBasicColor();
+    let color1, color2;
+    let attempts = 0;
     
-    // Make sure they're different colors
-    while (color2 === color1) {
+    // Keep trying until we find a new question (with safety limit)
+    do {
+        color1 = getRandomBasicColor();
         color2 = getRandomBasicColor();
-    }
-    // Function to get a random basic color
-function getRandomBasicColor() {
-    let basicColors = ["red", "blue", "yellow", "white", "black"]; // Added white and black
-    let randomIndex = Math.floor(Math.random() * basicColors.length);
-    return basicColors[randomIndex];
-}
+        
+        // Make sure they're different colors
+        while (color2 === color1) {
+            color2 = getRandomBasicColor();
+        }
+        
+        attempts = attempts + 1;
+        
+        // Safety check - if we've tried 20 times, just use any question
+        if (attempts > 20) {
+            console.log("Too many attempts, using any question");
+            break;
+        }
+        
+    } while (wasQuestionAsked(color1, color2));
+    
+    // Add this question to our asked list
+    addQuestionToAsked(color1, color2);
+
 
     
     // Set the current answer
     currentAnswer = mixTwoColors(color1, color2);
+
+
     
     // Display the colors
     let colorBox1 = document.getElementById("color1");
@@ -123,7 +166,7 @@ function checkUserAnswer() {
         showNextButton();
         
     } else {
-        feedback.innerText = "Try again! The answer is ";
+        feedback.innerText = "Try again!";
         feedback.style.color = "red";
         // Reset progress on wrong answer
         correctInARow = 0;
@@ -158,7 +201,7 @@ function goToNextQuestion() {
     document.getElementById("userAnswer").style.display = "block";
     
     // Check if player completed basic round
-    if (correctInARow >= 4) {
+    if (correctInARow >= 3) {
         alert("You completed the basic round! Moving to hard round...");
         // TODO: Add hard round later
     } else {
