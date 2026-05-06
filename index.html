@@ -15,25 +15,28 @@
     </div>
 
     <!-- Game Screen -->
-    <div id="gameScreen" style="display: none;">
-        <h2 id="roundTitle">Basic Round</h2>
-        <p id="scoreText">Correct in a row: 0/4</p>
-        
-        <div id="colorDisplay">
-            <div id="color1" class="color-box"></div>
-            <span id="colorOperation">+</span>
-            <div id="color2" class="color-box"></div>
-            <span>=</span>
-            <span id="questionMark">?</span>
-        </div>
 
-        <div id="answerSection">
-            <input type="text" id="userAnswer" placeholder="Enter your guess">
-            <button id="submitButton">Submit</button>
-        </div>
-
-        <p id="feedback"></p>
+       <div id="gameScreen" style="display: none;">
+    <h2 id="roundTitle">Basic Round</h2>
+    <p id="scoreText">Correct in a row: 0/3</p>
+    
+    <div id="colorDisplay">
+        <div id="color1" class="color-box"></div>
+        <span id="colorOperation">+</span>
+        <div id="color2" class="color-box"></div>
+        <span>=</span>
+        <span id="questionMark">?</span>
     </div>
+
+    <div id="answerSection">
+        <p>Choose your answer:</p>
+        <div id="colorChoices"></div>
+    </div>
+
+    <p id="feedback"></p>
+</div>
+
+</div>
 
     <!-- Win Screen -->
     <div id="winScreen" style="display: none;">

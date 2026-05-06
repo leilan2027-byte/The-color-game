@@ -4,15 +4,104 @@ console.log("Start Game");
 let startButton = document.getElementById("startButton");
 startButton.addEventListener("click", startGame);
 
-// Get the submit button and add an event listener
-let submitButton = document.getElementById("submitButton");
-submitButton.addEventListener("click", checkUserAnswer);
-
-
 // Game variables
 let correctInARow = 0;
 let currentAnswer = "";
 let askedQuestions = [];
+
+// Function to create color choice buttons
+function showColorChoices() {
+    let choicesDiv = document.getElementById("colorChoices");
+    choicesDiv.innerText = ""; // Clear any existing choices
+    
+    // List of possible answer colors
+    let possibleAnswers = ["purple", "orange", "green", "pink", "grey", "brown"];
+    
+    // Make sure the correct answer is included
+    let choices = [currentAnswer];
+    
+    // Add random wrong answers until we have 3 total choices
+    while (choices.length < 3) {
+        let randomIndex = Math.floor(Math.random() * possibleAnswers.length);
+        let randomColor = possibleAnswers[randomIndex];
+        
+        // Only add if not already in choices
+        let alreadyAdded = false;
+        for (let i = 0; i < choices.length; i++) {
+            if (choices[i] === randomColor) {
+                alreadyAdded = true;
+            }
+        }
+        
+        if (alreadyAdded === false) {
+            choices.push(randomColor);
+        }
+    }
+    
+    // Shuffle the choices so correct answer isn't always first
+    shuffleArray(choices);
+    
+    // Create a button for each choice
+    for (let i = 0; i < choices.length; i++) {
+        let button = document.createElement("div");
+        button.className = "choice-button";
+        button.style.backgroundColor = choices[i];
+        button.addEventListener("click", function() {
+            checkColorChoice(choices[i]);
+        });
+        choicesDiv.appendChild(button);
+    }
+}
+
+// Function to shuffle an array
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        // Swap elements
+        let temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
+// Function to check the color choice
+function checkColorChoice(chosenColor) {
+    let feedback = document.getElementById("feedback");
+    
+    // Check if the answer is correct
+    let isCorrect = checkAnswer(chosenColor, currentAnswer);
+    
+    if (isCorrect === "true") {
+        feedback.innerText = "Correct! Great job!";
+        feedback.style.color = "green";
+        correctInARow = correctInARow + 1;
+        updateProgress();
+        
+        // Hide color choices, show next button
+        document.getElementById("colorChoices").style.display = "none";
+        showNextButton();
+        
+    } else {
+        feedback.innerText = "Try again! That's not the right color.";
+        feedback.style.color = "red";
+        // Reset progress on wrong answer
+        correctInARow = 0;
+        updateProgress();
+    }
+}
+
+// Game variables - ADD THIS NEW ONE
+let currentRound = "basic"; // Track which round we're in
+
+// Function to update the round title
+function updateRoundTitle() {
+    let roundTitle = document.getElementById("roundTitle");
+    if (currentRound === "basic") {
+        roundTitle.innerText = "Basic Round";
+    } else {
+        roundTitle.innerText = "Hard Round";
+    }
+}
 
 // Function to create a question key for tracking
 function createQuestionKey(color1, color2) {
@@ -42,7 +131,6 @@ function addQuestionToAsked(color1, color2) {
     console.log("Total asked questions: " + askedQuestions.length);
 }
 
-
 // Function to update the progress display
 function updateProgress() {
     let scoreText = document.getElementById("scoreText");
@@ -51,7 +139,7 @@ function updateProgress() {
 
 // Function to get a random basic color
 function getRandomBasicColor() {
-    let basicColors = ["red", "blue", "yellow", "white", "black"]; // Added white and black
+    let basicColors = ["red", "blue", "yellow"];
     let randomIndex = Math.floor(Math.random() * basicColors.length);
     return basicColors[randomIndex];
 }
@@ -67,16 +155,14 @@ function mixTwoColors(color1, color2) {
     if ((color1 === "blue" && color2 === "yellow") || (color1 === "yellow" && color2 === "blue")) {
         return "green";
     }
-    if ((color1 === "white" && color2 === "black") || (color1 === "black" && color2 === "white")) {
-        return "grey";
-    }
     return "unknown"; 
 }
 
 // Function to start the game
 function startGame() {
-    // Reset progress
+    // Reset progress and asked questions
     correctInARow = 0;
+    askedQuestions = [];
     updateProgress();
     
     // Hide the start screen
@@ -91,44 +177,30 @@ function startGame() {
     showRandomQuestion();
 }
 
-// Show the first random question
-    showRandomQuestion();
-
-
 // Function to show a random basic question
 function showRandomQuestion() {
     let color1, color2;
     let attempts = 0;
     
-    // Keep trying until we find a new question (with safety limit)
+    // Keep trying until we find a new question
     do {
         color1 = getRandomBasicColor();
         color2 = getRandomBasicColor();
         
-        // Make sure they're different colors
         while (color2 === color1) {
             color2 = getRandomBasicColor();
         }
         
         attempts = attempts + 1;
         
-        // Safety check - if we've tried 20 times, just use any question
         if (attempts > 20) {
-            console.log("Too many attempts, using any question");
             break;
         }
         
     } while (wasQuestionAsked(color1, color2));
     
-    // Add this question to our asked list
     addQuestionToAsked(color1, color2);
-
-
-    
-    // Set the current answer
     currentAnswer = mixTwoColors(color1, color2);
-
-
     
     // Display the colors
     let colorBox1 = document.getElementById("color1");
@@ -137,44 +209,9 @@ function showRandomQuestion() {
     colorBox1.style.backgroundColor = color1;
     colorBox2.style.backgroundColor = color2;
     
-    // Hide submit button and show input (in case they were hidden)
-    document.getElementById("submitButton").style.display = "block";
-    document.getElementById("userAnswer").style.display = "block";
-}
-
-// Function to check the user's answer
-function checkUserAnswer() {
-    // Get the user's guess
-    let userInput = document.getElementById("userAnswer");
-    let userGuess = userInput.value;
-    
-    // Get the feedback area
-    let feedback = document.getElementById("feedback");
-    
-    // Check if the answer is correct
-    let isCorrect = checkAnswer(userGuess, currentAnswer);
-    
-    if (isCorrect === "true") {
-        feedback.innerText = "Correct! Great job!";
-        feedback.style.color = "green";
-        correctInARow = correctInARow + 1;
-        updateProgress();
-        
-        // Hide submit button and input, show next button
-        document.getElementById("submitButton").style.display = "none";
-        document.getElementById("userAnswer").style.display = "none";
-        showNextButton();
-        
-    } else {
-        feedback.innerText = "Try again!";
-        feedback.style.color = "red";
-        // Reset progress on wrong answer
-        correctInARow = 0;
-        updateProgress();
-    }
-    
-    // Clear the input field
-    userInput.value = "";
+    // Show color choices
+    document.getElementById("colorChoices").style.display = "flex";
+    showColorChoices();
 }
 
 // Function to show the next button
@@ -190,26 +227,86 @@ function showNextButton() {
 
 // Function to go to the next question
 function goToNextQuestion() {
-    alert("Next button clicked!"); // Debug alert
-    
     // Clear feedback area
     let feedback = document.getElementById("feedback");
     feedback.innerText = "";
     
-    // Show submit button and input again
-    document.getElementById("submitButton").style.display = "block";
-    document.getElementById("userAnswer").style.display = "block";
+    // Show color choices again
+    document.getElementById("colorChoices").style.display = "flex";
     
     // Check if player completed basic round
-    if (correctInARow >= 3) {
+    if (correctInARow >= 3 && currentRound === "basic") {
         alert("You completed the basic round! Moving to hard round...");
-        // TODO: Add hard round later
+        
+        // Switch to hard round
+        currentRound = "hard";
+        correctInARow = 0; // Reset progress for hard round
+        askedQuestions = []; // Clear asked questions
+        updateProgress();
+        updateRoundTitle();
+        
+        // Show first hard question
+        showHardQuestion();
+        
     } else {
-        alert("Showing new random question..."); // Debug alert
-        // Show next random question
-        showRandomQuestion();
+        // Show next question based on current round
+        if (currentRound === "basic") {
+            showRandomQuestion();
+        } else {
+            showHardQuestion();
+        }
     }
-  }
+}
+        // TODO: Add hard round later
+
+function hardRound() {
+            // Pick a random result color from our mixing rules
+let resultColor = getRandomResultColor();
+    
+// Find which two colors make this result
+let color1 = "";
+let color2 = "";
+    
+if (resultColor === "purple") {
+        color1 = "red";
+        color2 = "blue";
+ }
+if (resultColor === "orange") {
+    color1 = "red";
+    color2 = "yellow";
+}
+if (resultColor === "green") {
+    color1 = "blue";
+    color2 = "yellow";
+}
+    
+// Store the answer (we need BOTH colors)
+currentAnswer = color1 + "+" + color2;
+    
+alert("Hard round! What makes " + resultColor + "?"); // Debug
+    
+// Display the result color
+    let colorBox1 = document.getElementById("color1");
+    let colorBox2 = document.getElementById("color2");
+    
+// Show the result color in first box
+    colorBox1.style.backgroundColor = resultColor;
+    
+    // Hide the second box and the + and = signs for now
+    colorBox2.style.display = "none";
+    document.getElementById("colorOperation").style.display = "none";
+    document.getElementById("questionMark").innerText = "= ? + ?";
+}
+
+// Function to get a random result color
+function getRandomResultColor() {
+    let resultColors = ["purple", "orange", "green"];
+    let randomIndex = Math.floor(Math.random() * resultColors.length);
+    return resultColors[randomIndex];
+
+        }
+
+     
 
 
 // Function that returns "true" or "false" as strings
