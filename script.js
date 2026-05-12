@@ -13,28 +13,54 @@ let basicColorMixingRules = [
 
 let complexColorMixingRules = [
     { color1: "red", color2: "white", result: "pink" },
-    { color1: "blue", color2: "white", result: "light-blue" },
-    { color1: "green", color2: "white", result: "light-green" },
+    { color1: "blue", color2: "white", result: "lightblue" },
+    { color1: "green", color2: "white", result: "lightgreen" },
     { color1: "purple", color2: "white", result: "lavender" },
-    { color1: "orange", color2: "white", result: "peach" },
-    { color1: "yellow", color2: "white", result: "cream" },
+    { color1: "orange", color2: "white", result: "peachpuff" },
+    { color1: "yellow", color2: "white", result: "lightyellow" },
     { color1: "red", color2: "black", result: "maroon" },
     { color1: "blue", color2: "black", result: "navy" },
-    { color1: "green", color2: "black", result: "dark-green" },
-    { color1: "purple", color2: "black", result: "dark-purple" },
+    { color1: "green", color2: "black", result: "darkgreen" },
+    { color1: "purple", color2: "black", result: "indigo" },
     { color1: "orange", color2: "black", result: "brown" },
     { color1: "yellow", color2: "black", result: "olive" },
-    { color1: "red", color2: "orange", result: "red-orange" },
-    { color1: "yellow", color2: "orange", result: "yellow-orange" },
-    { color1: "yellow", color2: "green", result: "yellow-green" },
+    { color1: "red", color2: "orange", result: "orangered" },
+    { color1: "yellow", color2: "orange", result: "gold" },
+    { color1: "yellow", color2: "green", result: "yellowgreen" },
     { color1: "blue", color2: "green", result: "teal" },
     { color1: "blue", color2: "purple", result: "indigo" },
     { color1: "red", color2: "purple", result: "magenta" },
     { color1: "red", color2: "green", result: "brown" },
     { color1: "white", color2: "black", result: "grey" }
+
 ];
 
 // ===== GAME VARIABLES =====
+let totalComplexColors = 0;
+
+function countUniqueComplexColors() {
+    let uniqueColors = [];
+    
+    for (let i = 0; i < complexColorMixingRules.length; i++) {
+        let result = complexColorMixingRules[i].result;
+        let alreadyCounted = false;
+        
+        for (let j = 0; j < uniqueColors.length; j++) {
+            if (uniqueColors[j] === result) {
+                alreadyCounted = true;
+            }
+        }
+        
+        if (alreadyCounted === false) {
+            uniqueColors.push(result);
+        }
+    }
+    
+    return uniqueColors.length;
+}
+
+
+
 let correctInARow = 0;
 let currentAnswer = "";
 let askedQuestions = [];
@@ -76,7 +102,12 @@ function addQuestionToAsked(color1, color2) {
 
 function updateProgress() {
     let scoreText = document.getElementById("scoreText");
-    scoreText.innerText = "Correct in a row: " + correctInARow + "/3";
+    
+    if (currentRound === "basic") {
+        scoreText.innerText = "Correct in a row: " + correctInARow + "/3";
+    } else {
+        scoreText.innerText = "Colors learned: " + correctInARow + "/" + totalComplexColors;
+    }
 }
 
 function updateRoundTitle() {
@@ -227,81 +258,67 @@ function checkColorChoice(chosenColor) {
 
 // ===== HARD ROUND FUNCTIONS =====
 
-function getRandomComplexResultColor() {
-    let possibleResults = [];
-    
-    for (let i = 0; i < complexColorMixingRules.length; i++) {
-        let result = complexColorMixingRules[i].result;
-        
-        if (result !== "red" && result !== "blue" && result !== "yellow") {
-            possibleResults.push(result);
-        }
-    }
-    
-    let randomIndex = Math.floor(Math.random() * possibleResults.length);
-    return possibleResults[randomIndex];
-}
 
-function getColorsForResult(resultColor) {
-    for (let i = 0; i < basicColorMixingRules.length; i++) {
-        let rule = basicColorMixingRules[i];
-        if (rule.result === resultColor) {
-            return { color1: rule.color1, color2: rule.color2 };
-        }
-    }
-    
-    for (let i = 0; i < complexColorMixingRules.length; i++) {
-        let rule = complexColorMixingRules[i];
-        if (rule.result === resultColor) {
-            return { color1: rule.color1, color2: rule.color2 };
-        }
-    }
-    
-    return null;
-}
 
 function showHardQuestion() {
-    let resultColor = "";
     let color1 = "";
     let color2 = "";
     let attempts = 0;
     
+    // Get all possible colors for hard round
+    let availableColors = ["red", "blue", "yellow", "white", "black", "orange", "purple", "green"];
+    
     do {
-        resultColor = getRandomComplexResultColor();
-        let colorPair = getColorsForResult(resultColor);
+        let validPairFound = false;
         
-        if (colorPair === null) {
-            console.log("Error: No colors found for " + resultColor);
-            continue;
+        let randomIndex1 = Math.floor(Math.random() * availableColors.length);
+        color1 = availableColors[randomIndex1];
+        
+        let randomIndex2 = Math.floor(Math.random() * availableColors.length);
+        color2 = availableColors[randomIndex2];
+        
+        while (color2 === color1) {
+            randomIndex2 = Math.floor(Math.random() * availableColors.length);
+            color2 = availableColors[randomIndex2];
         }
         
-        color1 = colorPair.color1;
-        color2 = colorPair.color2;
+        // Check if this color pair has a valid mixing rule
+        let testResult = mixTwoColors(color1, color2);
+        if (testResult !== "unknown") {
+            validPairFound = true;
+        }
         
         attempts = attempts + 1;
         
-        if (attempts > 20) {
+        if (attempts > 50) {
             console.log("Too many attempts, using any question");
             break;
         }
         
-    } while (wasQuestionAsked(color1, color2));
+        if (validPairFound === true && wasQuestionAsked(color1, color2) === false) {
+            break;
+        }
+        
+    } while (true);
     
     addQuestionToAsked(color1, color2);
-    currentAnswer = createQuestionKey(color1, color2);
+    currentAnswer = mixTwoColors(color1, color2);
     
-    console.log("Hard round: What makes " + resultColor + "? Answer: " + currentAnswer);
+    console.log("Hard round: " + color1 + " + " + color2 + " = " + currentAnswer);
     
     let colorBox1 = document.getElementById("color1");
     let colorBox2 = document.getElementById("color2");
     let operation = document.getElementById("colorOperation");
     let questionMark = document.getElementById("questionMark");
     
-    colorBox1.style.backgroundColor = resultColor;
     colorBox1.style.display = "block";
-    colorBox2.style.display = "none";
-    operation.innerText = "=";
-    questionMark.innerText = "? + ?";
+    colorBox2.style.display = "block";
+    operation.style.display = "inline";
+    operation.innerText = "+";
+    questionMark.innerText = "?";
+    
+    colorBox1.style.backgroundColor = color1;
+    colorBox2.style.backgroundColor = color2;
     
     document.getElementById("colorChoices").style.display = "flex";
     showHardRoundChoices();
@@ -311,125 +328,84 @@ function showHardRoundChoices() {
     let choicesDiv = document.getElementById("colorChoices");
     choicesDiv.innerText = "";
     
-    let instruction = document.createElement("p");
-    instruction.innerText = "Pick TWO colors that make this color!";
-    instruction.style.fontSize = "18px";
-    instruction.style.fontWeight = "bold";
-    choicesDiv.appendChild(instruction);
+    // Get all possible result colors from complex rules
+    let allPossibleResults = [];
+    for (let i = 0; i < complexColorMixingRules.length; i++) {
+        let result = complexColorMixingRules[i].result;
+        let alreadyAdded = false;
+        
+        for (let j = 0; j < allPossibleResults.length; j++) {
+            if (allPossibleResults[j] === result) {
+                alreadyAdded = true;
+            }
+        }
+        
+        if (alreadyAdded === false) {
+            allPossibleResults.push(result);
+        }
+    }
     
-    let buttonContainer = document.createElement("div");
-    buttonContainer.style.display = "flex";
-    buttonContainer.style.justifyContent = "center";
-    buttonContainer.style.flexWrap = "wrap";
-    choicesDiv.appendChild(buttonContainer);
+    // Create choices array with correct answer
+    let choices = [currentAnswer];
     
-    let allColors = ["red", "blue", "yellow", "white", "black", "orange", "purple", "green"];
+    // Add random wrong answers
+    while (choices.length < 4) {
+        let randomIndex = Math.floor(Math.random() * allPossibleResults.length);
+        let randomColor = allPossibleResults[randomIndex];
+        
+        let alreadyInChoices = false;
+        for (let i = 0; i < choices.length; i++) {
+            if (choices[i] === randomColor) {
+                alreadyInChoices = true;
+            }
+        }
+        
+        if (alreadyInChoices === false) {
+            choices.push(randomColor);
+        }
+    }
     
-    for (let i = 0; i < allColors.length; i++) {
+    shuffleArray(choices);
+    
+    // Create buttons
+    for (let i = 0; i < choices.length; i++) {
         let button = document.createElement("div");
         button.className = "choice-button";
-        button.style.backgroundColor = allColors[i];
-        button.id = "color-btn-" + allColors[i];
-        
+        button.style.backgroundColor = choices[i];
         button.addEventListener("click", function() {
-            selectHardRoundColor(allColors[i], button);
+            checkHardRoundAnswer(choices[i]);
         });
-        
-        buttonContainer.appendChild(button);
-    }
-    
-    let submitButton = document.createElement("button");
-    submitButton.innerText = "Submit Answer";
-    submitButton.id = "hardSubmitButton";
-    submitButton.style.display = "none";
-    submitButton.style.marginTop = "20px";
-    submitButton.addEventListener("click", checkHardRoundAnswer);
-    choicesDiv.appendChild(submitButton);
-}
-
-function selectHardRoundColor(colorName, buttonElement) {
-    let alreadySelected = false;
-    let selectedIndex = -1;
-    
-    for (let i = 0; i < selectedColors.length; i++) {
-        if (selectedColors[i] === colorName) {
-            alreadySelected = true;
-            selectedIndex = i;
-        }
-    }
-    
-    if (alreadySelected) {
-        selectedColors.splice(selectedIndex, 1);
-        buttonElement.style.border = "3px solid #333";
-        buttonElement.style.transform = "scale(1)";
-    } else {
-        if (selectedColors.length < 2) {
-            selectedColors.push(colorName);
-            buttonElement.style.border = "5px solid gold";
-            buttonElement.style.transform = "scale(1.1)";
-        } else {
-            alert("You can only select 2 colors! Unselect one first.");
-            return;
-        }
-    }
-    
-    console.log("Selected colors: " + selectedColors);
-    
-    let submitButton = document.getElementById("hardSubmitButton");
-    if (selectedColors.length === 2) {
-        submitButton.style.display = "block";
-    } else {
-        submitButton.style.display = "none";
+        choicesDiv.appendChild(button);
     }
 }
 
-function checkHardRoundAnswer() {
+function checkHardRoundAnswer(chosenColor) {
     let feedback = document.getElementById("feedback");
+    let isCorrect = checkAnswer(chosenColor, currentAnswer);
     
-    let userAnswer = createQuestionKey(selectedColors[0], selectedColors[1]);
-    
-    console.log("User answer: " + userAnswer);
-    console.log("Correct answer: " + currentAnswer);
-    
-    if (userAnswer === currentAnswer) {
+    if (isCorrect === "true") {
         feedback.innerText = "Correct! Great job!";
         feedback.style.color = "green";
         correctInARow = correctInARow + 1;
         updateProgress();
         
         document.getElementById("colorChoices").style.display = "none";
-        
-        selectedColors = [];
-        
         showNextButton();
         
     } else {
-        feedback.innerText = "Try again! Those colors don't make this color.";
+        feedback.innerText = "Try again! That's not the right color.";
         feedback.style.color = "red";
         correctInARow = 0;
         updateProgress();
-        
-        selectedColors = [];
-        
-        let allButtons = document.querySelectorAll(".choice-button");
-        for (let i = 0; i < allButtons.length; i++) {
-            allButtons[i].style.border = "3px solid #333";
-            allButtons[i].style.transform = "scale(1)";
-        }
-        
-        let submitBtn = document.getElementById("hardSubmitButton");
-        if (submitBtn) {
-            submitBtn.style.display = "none";
-        }
     }
 }
-
 // ===== GAME FLOW FUNCTIONS =====
 
 function startGame() {
     correctInARow = 0;
     askedQuestions = [];
     currentRound = "basic";
+    totalComplexColors = countUniqueComplexColors();
     selectedColors = [];
     updateProgress();
     updateRoundTitle();
@@ -470,7 +446,7 @@ function goToNextQuestion() {
         
         showHardQuestion();
         
-    } else if (correctInARow >= 3 && currentRound === "hard") {
+    } else if (correctInARow >= totalComplexColors && currentRound === "hard") {
         alert("Congratulations! You completed both rounds! Now you know your colors!");
         
         let gameScreen = document.getElementById("gameScreen");
