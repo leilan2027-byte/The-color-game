@@ -435,8 +435,17 @@ function goToNextQuestion() {
     
     document.getElementById("colorChoices").style.display = "flex";
     
-    if (correctInARow >= 3 && currentRound === "basic") {
-        alert("You completed the basic round! Moving to hard round...");
+ if (correctInARow >= 3 && currentRound === "basic") {
+    // Clear the feedback and show transition message
+    feedback.innerText = "Great job! Moving to Hard Round...";
+    feedback.style.color = "green";
+    
+    // Hide the color choices during transition
+    document.getElementById("colorChoices").style.display = "none";
+    
+    // Wait a moment then show hard round
+    setTimeout(function() {
+        feedback.innerText = "";
         
         currentRound = "hard";
         correctInARow = 0;
@@ -445,15 +454,16 @@ function goToNextQuestion() {
         updateRoundTitle();
         
         showHardQuestion();
+    }, 2000);
         
     } else if (correctInARow >= totalComplexColors && currentRound === "hard") {
-        alert("Congratulations! You completed both rounds! Now you know your colors!");
-        
+        // Hide game screen
         let gameScreen = document.getElementById("gameScreen");
         gameScreen.style.display = "none";
         
-        let startScreen = document.getElementById("startScreen");
-        startScreen.style.display = "block";
+        // Show completion screen
+        let completionScreen = document.getElementById("completionScreen");
+        completionScreen.style.display = "block";
         
     } else {
         if (currentRound === "basic") {
@@ -462,4 +472,17 @@ function goToNextQuestion() {
             showHardQuestion();
         }
     }
+}
+
+let playAgainButton = document.getElementById("playAgainButton");
+playAgainButton.addEventListener("click", restartGame);
+
+function restartGame() {
+    // Hide completion screen
+    let completionScreen = document.getElementById("completionScreen");
+    completionScreen.style.display = "none";
+    
+    // Show start screen
+    let startScreen = document.getElementById("startScreen");
+    startScreen.style.display = "block";
 }
