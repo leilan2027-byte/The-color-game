@@ -474,8 +474,8 @@ function goToNextQuestion() {
     }
 }
 
-let playAgainButton = document.getElementById("playAgainButton");
-playAgainButton.addEventListener("click", restartGame);
+let completionPlayAgainButton = document.getElementById("completionPlayAgainButton");
+completionPlayAgainButton.addEventListener("click", restartGame);
 
 function restartGame() {
     // Hide completion screen
